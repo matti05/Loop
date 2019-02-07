@@ -133,6 +133,14 @@ final class LoopDataManager {
     /// These are not thread-safe.
     var settings: LoopSettings {
         didSet {
+            if settings.scheduleOverride != oldValue.scheduleOverride {
+                doseStore.scheduleOverride = settings.scheduleOverride
+                carbStore.scheduleOverride = settings.scheduleOverride
+                // Invalidate cached effects affected by the override
+                self.carbEffect = nil
+                self.carbsOnBoard = nil
+                self.insulinEffect = nil
+            }
             UserDefaults.appGroup.loopSettings = settings
             notify(forChange: .preferences)
             AnalyticsManager.shared.didChangeLoopSettings(from: oldValue, to: settings)
@@ -269,6 +277,11 @@ extension LoopDataManager {
         }
     }
 
+    /// The basal rate schedule, applying the most recently enabled override if active
+    var basalRateScheduleApplyingOverrideIfActive: BasalRateSchedule? {
+        return doseStore.basalProfileApplyingOverrideIfActive
+    }
+
     /// The daily schedule of carbs-to-insulin ratios
     /// This is measured in grams/Unit
     var carbRatioSchedule: CarbRatioSchedule? {
@@ -285,6 +298,11 @@ extension LoopDataManager {
 
             notify(forChange: .preferences)
         }
+    }
+
+    /// The carb ratio schedule, applying the most recently enabled override if active
+    var carbRatioScheduleApplyingOverrideIfActive: CarbRatioSchedule? {
+        return carbStore.carbRatioScheduleApplyingOverrideIfActive
     }
 
     /// The length of time insulin has an effect on blood glucose
@@ -332,6 +350,11 @@ extension LoopDataManager {
                 self.notify(forChange: .preferences)
             }
         }
+    }
+
+    /// The insulin sensitivity schedule, applying the most recently enabled override if active
+    var insulinSensitivityScheduleApplyingOverrideIfActive: InsulinSensitivitySchedule? {
+        return carbStore.insulinSensitivityScheduleApplyingOverrideIfActive
     }
 
     /// Sets a new time zone for a the schedule-based settings
@@ -438,7 +461,7 @@ extension LoopDataManager {
                 switch result {
                 case .success:
                     // Remove the active pre-meal target override
-                    self.settings.glucoseTargetRangeSchedule?.clearOverride(matching: .preMeal)
+                    self.settings.clearOverride(matching: .preMeal)
 
                     self.carbEffect = nil
                     self.carbsOnBoard = nil
@@ -740,7 +763,7 @@ extension LoopDataManager {
     private func getPendingInsulin() throws -> Double {
         dispatchPrecondition(condition: .onQueue(dataAccessQueue))
 
-        guard let basalRates = basalRateSchedule else {
+        guard let basalRates = basalRateScheduleApplyingOverrideIfActive else {
             throw LoopError.configurationError(.basalRateSchedule)
         }
 
@@ -892,11 +915,11 @@ extension LoopDataManager {
         let predictedGlucose = try predictGlucose(using: settings.enabledEffects)
         self.predictedGlucose = predictedGlucose
 
-        guard let
-            maxBasal = settings.maximumBasalRatePerHour,
-            let glucoseTargetRange = settings.glucoseTargetRangeSchedule,
-            let insulinSensitivity = insulinSensitivitySchedule,
-            let basalRates = basalRateSchedule,
+        guard
+            let maxBasal = settings.maximumBasalRatePerHour,
+            let glucoseTargetRange = settings.glucoseTargetRangeScheduleApplyingOverrideIfActive,
+            let insulinSensitivity = insulinSensitivityScheduleApplyingOverrideIfActive,
+            let basalRates = basalRateScheduleApplyingOverrideIfActive,
             let maxBolus = settings.maximumBolus,
             let model = insulinModelSettings?.model
         else {
@@ -912,7 +935,7 @@ extension LoopDataManager {
             recommendedTempBasal = nil
             return
         }
-        
+
         let tempBasal = predictedGlucose.recommendedTempBasal(
             to: glucoseTargetRange,
             suspendThreshold: settings.suspendThreshold?.quantity,
@@ -920,7 +943,8 @@ extension LoopDataManager {
             model: model,
             basalRates: basalRates,
             maxBasalRate: maxBasal,
-            lastTempBasal: lastTempBasal
+            lastTempBasal: lastTempBasal,
+            isBasalRateScheduleOverrideActive: settings.scheduleOverride?.isBasalRateScheduleOverriden(at: startDate) == true
         )
         
         if let temp = tempBasal {
@@ -1221,4 +1245,14 @@ protocol LoopDataManagerDelegate: class {
     ///   - completion: A closure called once on completion
     ///   - result: The enacted basal
     func loopDataManager(_ manager: LoopDataManager, didRecommendBasalChange basal: (recommendation: TempBasalRecommendation, date: Date), completion: @escaping (_ result: Result<DoseEntry>) -> Void) -> Void
+}
+
+
+private extension TemporaryScheduleOverride {
+    func isBasalRateScheduleOverriden(at date: Date) -> Bool {
+        guard isActive(at: date), let basalRateMultiplier = settings.basalRateMultiplier else {
+            return false
+        }
+        return abs(basalRateMultiplier - 1.0) >= .ulpOfOne
+    }
 }
