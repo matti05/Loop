@@ -40,6 +40,7 @@ extension UserDefaults {
             return
         }
         var settings = loopSettings?.rawValue ?? [:]
+        settings["cgmSource"] = cgm?.rawValue
         var targets : [String:String] = [:]
         for range in loopSettings?.glucoseTargetRangeSchedule?.overrideRanges ?? [:] {
             targets[range.key.rawValue] = "\(range.value.minValue) - \(range.value.maxValue)"
