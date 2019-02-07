@@ -17,11 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-<<<<<<< HEAD
 	<string>1.9.5dev-holly</string>
-=======
-	<string>1.9.5dev</string>
->>>>>>> 75464a38bb94efd1e1ad5d9b86f6a4b2f3cce275
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
