@@ -133,7 +133,7 @@ final class NightscoutDataManager {
         var loopBGTlow : String = ""
         var loopBGThigh : String = ""
         var loopEventualBG : String = ""
-        if let loopBGRange = deviceManager.loopManager.settings.glucoseTargetRangeSchedule?.value(at: Date()), let userUnit = deviceManager.loopManager.settings.glucoseTargetRangeSchedule?.unit {
+        if let loopBGRange = deviceManager.loopManager.settings.glucoseTargetRangeScheduleApplyingOverrideIfActive?.value(at: Date()), let userUnit = deviceManager.loopManager.settings.glucoseTargetRangeSchedule?.unit {
             if userUnit == HKUnit.milligramsPerDeciliter {
                 loopBGTlow = String(Int((loopBGRange.minValue)))
                 loopBGThigh = String(Int((loopBGRange.maxValue)))
@@ -150,6 +150,11 @@ final class NightscoutDataManager {
             loopBGThigh = "N/A"
         }
         
+        var loopMultiplier = "N/A"
+        if let override = deviceManager.loopManager.settings.scheduleOverride, override.isActive(), override.context != .preMeal {
+            loopMultiplier = String(format:"%.2f",override.settings.basalRateMultiplier as! Double)
+        }
+        
         if let loopEventualBGquantity = predictedGlucose?.last?.quantity, let userUnit = deviceManager.loopManager.settings.glucoseTargetRangeSchedule?.unit  {
             if userUnit == HKUnit.milligramsPerDeciliter {
                 loopEventualBG = String(Int(loopEventualBGquantity.doubleValue(for: userUnit)))
@@ -164,7 +169,17 @@ final class NightscoutDataManager {
             loopEventualBG = "N/A"
         }
         
-        loopParams = "BGTargets (" + loopBGTlow + ":" + loopBGThigh + ") | EvBG " + loopEventualBG + " | " + loopName
+        //loopParams = "BGTargets (" + loopBGTlow + ":" + loopBGThigh + ") | EvBG " + loopEventualBG + " | " + loopName
+        loopParams = "BGTargets (" + loopBGTlow + ":" + loopBGThigh + ") | EvBG " + loopEventualBG
+        
+        // TODO: add check on length of loopName - if too long it goes past max pill length (not sure what that is)
+        
+        if loopMultiplier == "N/A" {
+            loopParams = loopParams + " | " + loopName
+        }
+        else  {
+            loopParams = loopParams + " | M:" + loopMultiplier
+        }
         
         //upload loopParams instead of just loopName
         //that is the only pill that has the option to modify the text

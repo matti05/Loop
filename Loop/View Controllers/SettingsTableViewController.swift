@@ -279,6 +279,26 @@ final class SettingsTableViewController: UITableViewController {
             configCell.accessoryType = .disclosureIndicator
             return configCell
         case .services:
+            
+            //            let setting = dataManager.loopManager.settings
+            //            let preset = setting.overridePresets[0]
+            //            let override = preset.createOverride()
+            //            self.dataManager.loopManager.settings.scheduleOverride = override
+            //let test3 = TemporaryScheduleOverridePreset(context: .custom, startDate: Date(), settings: test2.settings, duration: test2.duration )
+            //let test3 = TemporaryScheduleOverridePreset(symbol: <#T##String#>, name: <#T##String#>, settings: <#T##TemporaryScheduleOverrideSettings#>, duration: <#T##TemporaryScheduleOverride.Duration#>)
+            //TemporaryScheduleOverridePreset.createOverride(test3)
+            // print(test3)
+            // print(test.scheduleOverride?.isActive())
+            //dataManager.loopManager.settings.clearOverride()
+            //scheduleOver
+            // let test3 = test.overridePresets[0].createOverride()
+            
+            //print(override)
+            // print(test.scheduleOverride?.isActive())
+            //print(Date())
+            
+            //print(test2)
+            
             let configCell = tableView.dequeueReusableCell(withIdentifier: SettingsTableViewCell.className, for: indexPath)
 
             switch ServiceRow(rawValue: indexPath.row)! {

@@ -40,11 +40,15 @@ extension UserDefaults {
             return
         }
         var settings = loopSettings?.rawValue ?? [:]
-        var targets : [String:String] = [:]
-        for range in loopSettings?.glucoseTargetRangeSchedule?.overrideRanges ?? [:] {
-            targets[range.key.rawValue] = "\(range.value.minValue) - \(range.value.maxValue)"
-        }
-        settings["workoutTargets"] = targets
+        
+        //        var targets : [String:String] = [:]
+        //        for range in
+        //            loopSettings?.glucoseTargetRangeSchedule?.applyingOverride(<#T##override: TemporaryScheduleOverride##TemporaryScheduleOverride#>) ?? [:] {
+        //            loopSettings?.glucoseTargetRangeScheduleApplyingOverrideIfActive?. ?? [:] {
+        //            targets[range.key.rawValue] = "\(range.value.minValue) - \(range.value.maxValue)"
+        //        }
+        //        settings["workoutTargets"] = targets
+
         let profile = NightscoutProfile(
             timestamp: Date(),
             name: "Loop",
