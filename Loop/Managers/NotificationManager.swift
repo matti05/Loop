@@ -18,6 +18,8 @@ struct NotificationManager {
         case pumpBatteryLow
         case pumpReservoirEmpty
         case pumpReservoirLow
+        case remoteTempSet
+        case remoteTempCancel
     }
 
     enum Action: String {
@@ -233,5 +235,39 @@ struct NotificationManager {
 
     static func clearPumpReservoirNotification() {
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Category.pumpReservoirLow.rawValue])
+    }
+    
+    static func sendRemoteTempSetNotification(lowTarget: String, highTarget: String, multiplier: String, duration: String) {
+        let notification = UNMutableNotificationContent()
+        
+        notification.title = NSLocalizedString("Remote Temporary Override Set", comment: "The notification title for Remote Temp")
+        notification.body = NSLocalizedString("BGTargets(" + lowTarget + ":" + highTarget + ") | M:" + multiplier + " | min:" + duration, comment: "details of remote target")
+        notification.sound = UNNotificationSound.default()
+        notification.categoryIdentifier = Category.remoteTempSet.rawValue
+        
+        let request = UNNotificationRequest(
+            identifier: Category.remoteTempSet.rawValue,
+            content: notification,
+            trigger: nil
+        )
+        
+        UNUserNotificationCenter.current().add(request)
+    }
+    
+    static func sendRemoteTempCancelNotification() {
+        let notification = UNMutableNotificationContent()
+        
+        notification.title = NSLocalizedString("Remote Temporary Override Canceled", comment: "The notification title for Remote Temp Cancel")
+        notification.body = NSLocalizedString("", comment: "details of remote target cancel")
+        notification.sound = UNNotificationSound.default()
+        notification.categoryIdentifier = Category.remoteTempCancel.rawValue
+        
+        let request = UNNotificationRequest(
+            identifier: Category.remoteTempCancel.rawValue,
+            content: notification,
+            trigger: nil
+        )
+        
+        UNUserNotificationCenter.current().add(request)
     }
 }
