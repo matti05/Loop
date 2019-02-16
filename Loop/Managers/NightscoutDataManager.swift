@@ -151,8 +151,13 @@ final class NightscoutDataManager {
         }
         
         var loopMultiplier = "N/A"
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 0
+        formatter.numberStyle = .decimal        
         if let override = deviceManager.loopManager.settings.scheduleOverride, override.isActive(), override.context != .preMeal {
-            loopMultiplier = String(format:"%.2f",override.settings.basalRateMultiplier as! Double)
+            let basalRateMultiplier = (override.settings.basalRateMultiplier ?? 1.0) * 100.0
+            loopMultiplier = formatter.string(from: basalRateMultiplier as NSNumber) ?? "N/A"
         }
         
         if let loopEventualBGquantity = predictedGlucose?.last?.quantity, let userUnit = deviceManager.loopManager.settings.glucoseTargetRangeSchedule?.unit  {
@@ -178,7 +183,7 @@ final class NightscoutDataManager {
             loopParams = loopParams + " | " + loopName
         }
         else  {
-            loopParams = loopParams + " | M:" + loopMultiplier
+            loopParams = loopParams + " | O:" + loopMultiplier + "%"
         }
         
         //upload loopParams instead of just loopName
