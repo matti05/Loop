@@ -371,8 +371,8 @@ extension DeviceDataManager: PumpManagerDelegate {
                     }
                     if self.loopManager.settings.scheduleOverride == nil || self.loopManager.settings.scheduleOverride?.isActive() != true {
                         presets[index].settings.basalRateMultiplier = multiplier
-                        presets[index].settings.carbRatioMultiplier = multiplier
-                        presets[index].settings.insulinSensitivityMultiplier = multiplier
+                        presets[index].settings.carbRatioMultiplier = 1.0/multiplier
+                        presets[index].settings.insulinSensitivityMultiplier = 1.0/multiplier
                         presets[index].duration = .finite(.minutes(Double(last.duration)))
                         presets[index].settings.targetRange = DoubleRange(minValue: lowerTarget.doubleValue(for: userUnit!), maxValue: upperTarget.doubleValue(for: userUnit!))
                         self.loopManager.settings.overridePresets = presets
@@ -399,8 +399,8 @@ extension DeviceDataManager: PumpManagerDelegate {
                         abs(activeDate.timeIntervalSince(endlastTemp)) > TimeInterval(.minutes(2)) {
                         
                         presets[index].settings.basalRateMultiplier = multiplier
-                        presets[index].settings.carbRatioMultiplier = multiplier
-                        presets[index].settings.insulinSensitivityMultiplier = multiplier
+                        presets[index].settings.carbRatioMultiplier = 1.0/multiplier
+                        presets[index].settings.insulinSensitivityMultiplier = 1.0/multiplier
                         presets[index].duration = .finite(.minutes(Double(last.duration)))
                         presets[index].settings.targetRange = DoubleRange(minValue: lowerTarget.doubleValue(for: userUnit!), maxValue: upperTarget.doubleValue(for: userUnit!))
                         self.loopManager.settings.overridePresets = presets
