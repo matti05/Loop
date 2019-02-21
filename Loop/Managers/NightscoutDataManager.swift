@@ -154,7 +154,7 @@ final class NightscoutDataManager {
         let formatter = NumberFormatter()
         formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = 0
-        formatter.numberStyle = .decimal        
+        formatter.numberStyle = .decimal
         if let override = deviceManager.loopManager.settings.scheduleOverride, override.isActive(), override.context != .preMeal {
             let basalRateMultiplier = (override.settings.basalRateMultiplier ?? 1.0) * 100.0
             loopMultiplier = formatter.string(from: basalRateMultiplier as NSNumber) ?? "N/A"
