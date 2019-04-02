@@ -1,8 +1,8 @@
-github "kdisimone/LoopKit" "holly"
-github "kdisimone/CGMBLEKit" "holly"
-github "i-schuetz/SwiftCharts" == 0.6.2
-github "kdisimone/dexcom-share-client-swift" "holly"
-github "kdisimone/G4ShareSpy" "holly"
-github "kdisimone/rileylink_ios" "holly-x15fix"
-github "LoopKit/Amplitude-iOS" "decreepify"
-github "kdisimone/spike-client-swift" "holly"
+github "matti05/LoopKit" "holly"
+github "matti05/CGMBLEKit" "holly"
+github "matti05/SwiftCharts" == 0.6.2
+github "matti05/dexcom-share-client-swift" "holly"
+github "matti05/G4ShareSpy" "holly"
+github "matti05/rileylink_ios" "holly-x15fix"
+github "matti05/Amplitude-iOS" "decreepify"
+github "matti05/spike-client-swift" "holly"
